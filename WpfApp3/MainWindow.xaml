@@ -12,10 +12,10 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="0.7*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <MediaElement Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Source="http://hubblesource.stsci.edu/sources/video/clips/details/images/hst_1.mpg" LoadedBehavior="Manual" Name="mePlayer" />
+        <MediaElement Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="20 20 20 20" Source="http://hubblesource.stsci.edu/sources/video/clips/details/images/hst_1.mpg" LoadedBehavior="Manual" Name="mePlayer" />
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Bottom">
             <Label Name="lblStatus" Content="Not playing..." HorizontalContentAlignment="Center" Margin="5" />
             <WrapPanel HorizontalAlignment="Center">
