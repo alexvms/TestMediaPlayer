@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30309.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp3", "WpfApp3\WpfApp3.csproj", "{A0BBA25B-5183-4296-ABF8-E24EA8FC5D47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestMediaPlayer", "WpfApp3\TestMediaPlayer.csproj", "{A0BBA25B-5183-4296-ABF8-E24EA8FC5D47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
