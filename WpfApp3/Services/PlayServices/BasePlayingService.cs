@@ -85,7 +85,7 @@ namespace TestMediaPlayer.Services.PlayServices
             schedule = scheduleParam;
             if (statusPlayingBg == StatusPlayingBg.stopped)
             {
-                playlistBg = FileTools.GetFilesList(schedule.Where(i => i.typePlaying == TypePlaying.background).FirstOrDefault().path);
+                playlistBg = FileTools.GetFilesList(schedule.Where(i => i.typePlaying == TypePlaying.background && i.startTime < DateTime.Now && i.stopTime > DateTime.Now).FirstOrDefault().path);
                 currentFileBg = playlistBg.First;
                 play(player, currentFileBg.Value.name);
                 statusPlayingBg = StatusPlayingBg.playing;
