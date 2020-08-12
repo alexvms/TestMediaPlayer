@@ -15,12 +15,14 @@
             <ColumnDefinition Width="0.7*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <MediaElement Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="20 20 20 20" Source="" LoadedBehavior="Manual" Name="mePlayer" />
+        <MediaElement Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="20 20 20 20" Source="" LoadedBehavior="Manual" Name="mePlayerBg" Opacity="1"/>
+        <MediaElement Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="20 20 20 20" Source="" LoadedBehavior="Manual" Name="mePlayerIr" Opacity="0"/>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Bottom">
             <Label Name="lblStatus" Content="Not playing..." HorizontalContentAlignment="Center" Margin="5" />
             <WrapPanel HorizontalAlignment="Center">
                 <Button Name="btnLoadSchedule" Click="btnLoadSchedule_Click">Load schedule</Button>
             </WrapPanel>
         </StackPanel>
-    </Grid>
+        <Button Grid.Row="1" Grid.Column="0" Name="btnInterrupt" Click="btnInterrupt_Click">Interrupt</Button>
+    </Grid> 
 </Window>

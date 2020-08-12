@@ -4,10 +4,11 @@ using System.Collections.Generic;
 
 namespace TestMediaPlayer.Services.PlayServices
 {
-    public interface IPlayService
+    public interface IPlayService<T>
     {
-        void playSchedule(List<ScheduleDataObject> schedule, MediaElement player);
+        void playSchedule(List<ScheduleDataObject> schedule, T player);
         void stopAll();
-        void nextPlay(MediaElement player);
+        void nextPlay(T player);
+        void playInterrupt(List<ScheduleDataObject> listScheduleObject, T mePlayerIr);
     }
 }

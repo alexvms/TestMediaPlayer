@@ -14,7 +14,7 @@ namespace TestMediaPlayer.Helpers
             foreach(var file in files)
             {
                 FileDataObject fileObject = new FileDataObject { name = file };
-                result.AddFirst(fileObject);
+                result.AddLast(fileObject);
             }
             return result;
         }

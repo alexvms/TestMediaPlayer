@@ -8,7 +8,7 @@ using TestMediaPlayer.Helpers;
 
 namespace TestMediaPlayer.Services.PlayServices
 {
-    public class DefaultPlayService : IPlayService
+    public class DefaultPlayService : BasePlayingService<MediaElement>, IPlayService<MediaElement>
     {
         public StatusPlaying statusPlaying;
         public LinkedListNode<FileDataObject> currentFile;
@@ -27,7 +27,7 @@ namespace TestMediaPlayer.Services.PlayServices
             play(currentFile.Value.name, player);
         }
 
-        void IPlayService.playSchedule(List<ScheduleDataObject> schedule, MediaElement player)
+        public void playSchedule(List<ScheduleDataObject> schedule, MediaElement player)
         {
             if(statusPlaying == StatusPlaying.stopped)
             {
@@ -38,15 +38,21 @@ namespace TestMediaPlayer.Services.PlayServices
             }
         }
 
-        void IPlayService.stopAll()
+        public void stopAll()
         {
             statusPlaying = StatusPlaying.stopped;
         }
 
-        void play(string fileName, MediaElement player)
+        public override void play(MediaElement player, string fileName)
         {
             player.Source = new Uri(fileName);
             player.Play();
         }
+
+        public void playInterrupt(List<ScheduleDataObject> listScheduleObject, MediaElement mePlayerIr)
+        {
+            
+        }
+
     }
 }

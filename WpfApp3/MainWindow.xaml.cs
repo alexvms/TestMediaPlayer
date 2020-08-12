@@ -47,14 +47,26 @@ namespace TestMediaPlayer
 
 		}
 		void btnLoadSchedule_Click(object sender, RoutedEventArgs e)
-        {
+		{
 			try
 			{
 				if (DialogServices.Main.OpenFileDialog() == true)
 				{
 					loadData(DialogServices.Main.FilePath);
-					PlayService.Main.playSchedule(listScheduleObject, mePlayer);
+					PlayService.Main.playSchedule(listScheduleObject, mePlayerBg);
 				}
+			}
+			catch (Exception ex)
+			{
+				DialogServices.Main.ShowMessage(ex.Message);
+			}
+
+		}
+		void btnInterrupt_Click(object sender, RoutedEventArgs e)
+		{
+			try
+			{
+				PlayService.Main.playInterrupt(listScheduleObject, mePlayerIr);
 			}
 			catch (Exception ex)
 			{
@@ -64,14 +76,14 @@ namespace TestMediaPlayer
 		}
 		void timer_Tick(object sender, EventArgs e)
 		{
-			if (mePlayer.Source != null)
+			if (mePlayerBg.Source != null)
 			{
-				if (mePlayer.NaturalDuration.HasTimeSpan)
+				if (mePlayerBg.NaturalDuration.HasTimeSpan)
                 {
-					lblStatus.Content = String.Format("{0} / {1}", mePlayer.Position.ToString(@"mm\:ss"), mePlayer.NaturalDuration.TimeSpan.ToString(@"mm\:ss"));
-					if (mePlayer.Position == mePlayer.NaturalDuration.TimeSpan)
+					lblStatus.Content = String.Format("{0} / {1}", mePlayerBg.Position.ToString(@"mm\:ss"), mePlayerBg.NaturalDuration.TimeSpan.ToString(@"mm\:ss"));
+					if (mePlayerBg.Position == mePlayerBg.NaturalDuration.TimeSpan)
                     {
-						PlayService.Main.nextPlay(mePlayer);
+						PlayService.Main.nextPlay(mePlayerBg);
                     }
 				}
 			}
@@ -79,21 +91,6 @@ namespace TestMediaPlayer
 				lblStatus.Content = "No file selected...";
 
 
-		}
-
-		private void btnPlay_Click(object sender, RoutedEventArgs e)
-		{
-			mePlayer.Play();
-		}
-
-		private void btnPause_Click(object sender, RoutedEventArgs e)
-		{
-			mePlayer.Pause();
-		}
-
-		private void btnStop_Click(object sender, RoutedEventArgs e)
-		{
-			mePlayer.Stop();
 		}
 	}
 }
