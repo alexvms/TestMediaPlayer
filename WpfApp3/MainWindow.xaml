@@ -16,7 +16,6 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <MediaElement Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="20 20 20 20" Source="" LoadedBehavior="Manual" Name="mePlayerBg" Opacity="1"/>
-        <MediaElement Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Margin="20 20 20 20" Source="" LoadedBehavior="Manual" Name="mePlayerIr" Opacity="0"/>
         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Bottom">
             <Label Name="lblStatus" Content="Not playing..." HorizontalContentAlignment="Center" Margin="5" />
             <WrapPanel HorizontalAlignment="Center">

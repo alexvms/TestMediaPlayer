@@ -25,7 +25,7 @@ namespace TestMediaPlayer
 
 			DataServices.Init();
 			DialogServices.Init();
-			PlayService.Init();
+			PlayService.Init(mePlayerBg);
 			
 			DispatcherTimer timer = new DispatcherTimer();
 			timer.Interval = TimeSpan.FromSeconds(1);
@@ -53,7 +53,7 @@ namespace TestMediaPlayer
 				if (DialogServices.Main.OpenFileDialog() == true)
 				{
 					loadData(DialogServices.Main.FilePath);
-					PlayService.Main.playSchedule(listScheduleObject, mePlayerBg);
+					PlayService.Main.playSchedule(listScheduleObject);
 				}
 			}
 			catch (Exception ex)
@@ -66,7 +66,7 @@ namespace TestMediaPlayer
 		{
 			try
 			{
-				PlayService.Main.playInterrupt(listScheduleObject, mePlayerIr);
+				PlayService.Main.playInterrupt();
 			}
 			catch (Exception ex)
 			{
@@ -76,15 +76,14 @@ namespace TestMediaPlayer
 		}
 		void timer_Tick(object sender, EventArgs e)
 		{
+			
 			if (mePlayerBg.Source != null)
 			{
 				if (mePlayerBg.NaturalDuration.HasTimeSpan)
                 {
 					lblStatus.Content = String.Format("{0} / {1}", mePlayerBg.Position.ToString(@"mm\:ss"), mePlayerBg.NaturalDuration.TimeSpan.ToString(@"mm\:ss"));
-					if (mePlayerBg.Position == mePlayerBg.NaturalDuration.TimeSpan)
-                    {
-						PlayService.Main.nextPlay(mePlayerBg);
-                    }
+
+					PlayService.Main.timeProcessing(mePlayerBg.Position, mePlayerBg.NaturalDuration.TimeSpan);
 				}
 			}
 			else

@@ -5,11 +5,12 @@ namespace TestMediaPlayer.Services.PlayServices
 {
     public static class PlayService
     {
-		public static IPlayService Main { get; private set; }
+		public static IPlayService<MediaElement> Main { get; private set; }
 
-		public static void Init()
+		public static void Init(MediaElement playerBg)
 		{
 			Main = new DefaultPlayService();
+			Main.Initialization(playerBg);
 			Main.stopAll();
 		}
 	}

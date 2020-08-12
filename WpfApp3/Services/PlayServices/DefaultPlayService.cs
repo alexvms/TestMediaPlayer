@@ -10,48 +10,39 @@ namespace TestMediaPlayer.Services.PlayServices
 {
     public class DefaultPlayService : BasePlayingService<MediaElement>, IPlayService<MediaElement>
     {
-        public StatusPlaying statusPlaying;
-        public LinkedListNode<FileDataObject> currentFile;
-        LinkedList<FileDataObject> playlist;
-
-        public void nextPlay(MediaElement player)
+        public void Initialization(MediaElement mePlayerBg)
         {
-            if(currentFile.Next != null)
-            {
-                currentFile = currentFile.Next;
-            }
-            else
-            {
-                currentFile = playlist.First;
-            }
-            play(currentFile.Value.name, player);
+            player = mePlayerBg;
         }
 
-        public void playSchedule(List<ScheduleDataObject> schedule, MediaElement player)
-        {
-            if(statusPlaying == StatusPlaying.stopped)
-            {
-                playlist = FileTools.GetFilesList(schedule.Where(i => i.typePlaying == TypePlaying.background).FirstOrDefault().path);
-                currentFile = playlist.First;
-                play(currentFile.Value.name, player);
-                statusPlaying = StatusPlaying.playing;
-            }
-        }
-
-        public void stopAll()
-        {
-            statusPlaying = StatusPlaying.stopped;
-        }
-
-        public override void play(MediaElement player, string fileName)
+        public override void play(MediaElement player, string fileName, double position = 0)
         {
             player.Source = new Uri(fileName);
+            if(statusPlayingBg == StatusPlayingBg.paused && position > 0)
+            {
+                player.Position = TimeSpan.FromSeconds(position);
+                statusPlayingBg = StatusPlayingBg.playing;
+                position = 0;
+            }
             player.Play();
         }
 
-        public void playInterrupt(List<ScheduleDataObject> listScheduleObject, MediaElement mePlayerIr)
+        public override void continuePlay()
         {
-            
+            play(player, currentFileBg.Value.name, positionBg);
+        }
+
+        public void playInterrupt()
+        {
+            playlistIr = FileTools.GetFilesList(schedule.Where(i => i.typePlaying == TypePlaying.interrupt).FirstOrDefault().path);
+            currentFileIr = playlistIr.First;
+
+            //playerBg.Pause();
+            positionBg = player.Position.TotalSeconds;
+            statusPlayingIr = StatusPlayingIr.playing;
+            statusPlayingBg = StatusPlayingBg.paused;
+
+            play(player, currentFileIr.Value.name);
         }
 
     }
