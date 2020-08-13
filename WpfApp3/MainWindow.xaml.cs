@@ -7,6 +7,7 @@ using TestMediaPlayer.Services.DataServices;
 using TestMediaPlayer.DataObjects;
 using TestMediaPlayer.Services.DialogServices;
 using TestMediaPlayer.Services.PlayServices;
+using System.Linq;
 
 namespace TestMediaPlayer
 {
@@ -36,7 +37,22 @@ namespace TestMediaPlayer
 		async Task loadData(string fileName)
         {
 			var result = await DataServices.Main.GetScheduleDataObject(fileName);
-			if (result.IsValid)
+			var incorrect = false;
+			foreach(var item in result.Data)
+            {
+				if(result.Data.Where(i => i.typePlaying == TypePlaying.background && ((item.startTime > i.startTime && item.startTime < i.stopTime) || (item.stopTime > i.startTime && item.stopTime < i.stopTime))).Any()){
+					incorrect = true;
+                }
+            }
+			foreach (var item in result.Data)
+			{
+				if (result.Data.Where(i => i.typePlaying == TypePlaying.interrupt && item.startTime == i.startTime && item.id != i.id).Any())
+				{
+					incorrect = true;
+				}
+			}
+
+			if (result.IsValid && !incorrect)
 			{
 				PlayService.Main.setSchedule(result.Data);
 			}
