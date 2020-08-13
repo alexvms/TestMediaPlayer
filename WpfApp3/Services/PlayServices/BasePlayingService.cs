@@ -17,18 +17,99 @@ namespace TestMediaPlayer.Services.PlayServices
         public LinkedList<FileDataObject> playlistBg;
         public LinkedList<FileDataObject> playlistIr;
         public List<ScheduleDataObject> schedule;
+        public ScheduleDataObject currentScheduleBg;
+        public ScheduleDataObject currentScheduleIr;
+        public bool stop = false;
 
         public void timeProcessing(TimeSpan position, TimeSpan timeSpan)
         {
-            if(statusPlayingBg == StatusPlayingBg.playing)
+            var proveSchedule = schedule.Where(i => i.typePlaying == TypePlaying.background && DateTime.Now >= i.startTime && DateTime.Now < i.stopTime).FirstOrDefault();
+            if (proveSchedule != null)
+            {
+                if(currentScheduleBg != null)
+                {
+                    if(currentScheduleBg.id != proveSchedule.id)
+                    {
+                        if(statusPlayingIr != StatusPlayingIr.playing && statusPlayingBg != StatusPlayingBg.playing && statusPlayingBg != StatusPlayingBg.paused)
+                        {
+                            currentScheduleBg = proveSchedule;
+                            playSchedule();
+                        }
+                        else if(!stop)
+                        {
+                            stop = true;
+                        }
+                    }
+                }
+                else
+                {
+                    currentScheduleBg = proveSchedule;
+                    if (statusPlayingIr != StatusPlayingIr.playing)
+                    {
+                        playSchedule();
+                    }
+                    else
+                    {
+                        statusPlayingBg = StatusPlayingBg.paused;
+                    }
+                }
+            }
+
+            proveSchedule = schedule.Where(i => i.typePlaying == TypePlaying.interrupt && DateTime.Now >= i.startTime && DateTime.Now < i.stopTime).FirstOrDefault();
+            if (proveSchedule != null)
+            {
+                if (currentScheduleIr != null)
+                {
+                    if (currentScheduleIr.id != proveSchedule.id)
+                    {
+                        if (statusPlayingIr != StatusPlayingIr.playing && statusPlayingBg != StatusPlayingBg.playing && statusPlayingBg != StatusPlayingBg.paused)
+                        {
+                            currentScheduleIr = proveSchedule;
+                            playInterrupt(position.TotalSeconds);
+                        }
+                        else if (!stop)
+                        {
+                            stop = true;
+                        }
+                    }
+                }
+                else
+                {
+                    currentScheduleIr = proveSchedule;
+                    playInterrupt(position.TotalSeconds);
+                }
+            }
+
+
+            if (statusPlayingBg == StatusPlayingBg.playing)
             {
                 if (position == timeSpan)
-                    nextPlay(player, playlistBg, currentFileBg, true);
+                {
+                    if (stop)
+                    {
+                        stop = false;
+                        statusPlayingBg = StatusPlayingBg.stopped;
+                    }
+                    else
+                    {
+                        nextPlay(player, playlistBg, currentFileBg, true);
+                    }
+
+                }
             }
             else if(statusPlayingIr == StatusPlayingIr.playing)
             {
                 if (position == timeSpan)
-                    nextPlay(player, playlistIr, currentFileIr, false);
+                {
+                    if (stop)
+                    {
+                        statusPlayingIr = StatusPlayingIr.stopped;
+                    }
+                    else
+                    {
+                        nextPlay(player, playlistIr, currentFileIr, false);
+                    }
+                }
             }
             else
             {
@@ -36,10 +117,6 @@ namespace TestMediaPlayer.Services.PlayServices
                     continuePlay();
                 }
             }
-        }
-
-        public virtual void continuePlay()
-        {
         }
 
         public void nextPlay(T player, LinkedList<FileDataObject> playlist, LinkedListNode<FileDataObject> currentFile, bool repeat)
@@ -80,16 +157,35 @@ namespace TestMediaPlayer.Services.PlayServices
             statusPlayingBg = StatusPlayingBg.stopped;
         }
 
-        public void playSchedule(List<ScheduleDataObject> scheduleParam)
+        public void playSchedule()
         {
-            schedule = scheduleParam;
             if (statusPlayingBg == StatusPlayingBg.stopped)
             {
-                playlistBg = FileTools.GetFilesList(schedule.Where(i => i.typePlaying == TypePlaying.background && i.startTime < DateTime.Now && i.stopTime > DateTime.Now).FirstOrDefault().path);
+                playlistBg = FileTools.GetFilesList(currentScheduleBg.path);
+                stop = false;
                 currentFileBg = playlistBg.First;
                 play(player, currentFileBg.Value.name);
                 statusPlayingBg = StatusPlayingBg.playing;
             }
         }
+
+        public void playInterrupt(double totalSeconds)
+        {
+            playlistIr = FileTools.GetFilesList(currentScheduleIr.path);
+            currentFileIr = playlistIr.First;
+            stop = false;
+
+            positionBg = totalSeconds;
+            statusPlayingIr = StatusPlayingIr.playing;
+            statusPlayingBg = StatusPlayingBg.paused;
+
+            play(player, currentFileIr.Value.name);
+        }
+
+        public void continuePlay()
+        {
+            play(player, currentFileBg.Value.name, positionBg);
+        }
+
     }
 }

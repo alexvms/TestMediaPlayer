@@ -22,28 +22,9 @@ namespace TestMediaPlayer.Services.PlayServices
             {
                 player.Position = TimeSpan.FromSeconds(position);
                 statusPlayingBg = StatusPlayingBg.playing;
-                position = 0;
+                positionBg = 0;
             }
             player.Play();
         }
-
-        public override void continuePlay()
-        {
-            play(player, currentFileBg.Value.name, positionBg);
-        }
-
-        public void playInterrupt()
-        {
-            playlistIr = FileTools.GetFilesList(schedule.Where(i => i.typePlaying == TypePlaying.interrupt).FirstOrDefault().path);
-            currentFileIr = playlistIr.First;
-
-            //playerBg.Pause();
-            positionBg = player.Position.TotalSeconds;
-            statusPlayingIr = StatusPlayingIr.playing;
-            statusPlayingBg = StatusPlayingBg.paused;
-
-            play(player, currentFileIr.Value.name);
-        }
-
     }
 }
