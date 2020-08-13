@@ -38,13 +38,13 @@ namespace TestMediaPlayer
         {
 			var result = await DataServices.Main.GetScheduleDataObject(fileName);
 			var incorrect = false;
-			foreach(var item in result.Data)
+			foreach(var item in result.Data.Where(i => i.typePlaying == TypePlaying.background))
             {
 				if(result.Data.Where(i => i.typePlaying == TypePlaying.background && ((item.startTime > i.startTime && item.startTime < i.stopTime) || (item.stopTime > i.startTime && item.stopTime < i.stopTime))).Any()){
 					incorrect = true;
                 }
             }
-			foreach (var item in result.Data)
+			foreach (var item in result.Data.Where(i => i.typePlaying == TypePlaying.interrupt))
 			{
 				if (result.Data.Where(i => i.typePlaying == TypePlaying.interrupt && item.startTime == i.startTime && item.id != i.id).Any())
 				{

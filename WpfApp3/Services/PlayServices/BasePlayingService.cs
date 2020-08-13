@@ -52,18 +52,22 @@ namespace TestMediaPlayer.Services.PlayServices
                     {
                         if(schedule.ident == currentScheduleIdent)
                         {
-                            if (currentScheduleBg.id != proveSchedule.id)
+                            if (currentScheduleBg.startTime != proveSchedule.startTime)
                             {
-                                if (statusPlayingIr != StatusPlayingIr.playing && statusPlayingBg != StatusPlayingBg.playing && statusPlayingBg != StatusPlayingBg.paused)
+                                if (statusPlayingIr != StatusPlayingIr.playing)
                                 {
-                                    currentScheduleBg = proveSchedule;
-                                    currentScheduleIdent = schedule.ident;
-                                    playSchedule();
-                                    justStartPlaying = true;
-                                }
-                                else if (!stop)
-                                {
-                                    stop = true;
+                                    if (statusPlayingBg != StatusPlayingBg.playing)
+                                    {
+                                        statusPlayingBg = StatusPlayingBg.stopped;
+                                        currentScheduleBg = proveSchedule;
+                                        currentScheduleIdent = schedule.ident;
+                                        playSchedule();
+                                        justStartPlaying = true;
+                                    }
+                                    else if (!stop)
+                                    {
+                                        stop = true;
+                                    }
                                 }
                             }
                         }
@@ -153,6 +157,7 @@ namespace TestMediaPlayer.Services.PlayServices
                                 statusPlayingIr = StatusPlayingIr.stopped;
                                 if(statusPlayingBg == StatusPlayingBg.stopped)
                                 {
+                                    stop = false;
                                     proveSchedule = schedule.list.Where(i => i.typePlaying == TypePlaying.background && DateTime.Now >= i.startTime && DateTime.Now < i.stopTime).FirstOrDefault();
                                     currentScheduleBg = proveSchedule;
                                     currentScheduleIdent = schedule.ident;
@@ -169,7 +174,15 @@ namespace TestMediaPlayer.Services.PlayServices
                     {
                         if (statusPlayingBg == StatusPlayingBg.paused)
                         {
-                            continuePlay();
+                            proveSchedule = schedule.list.Where(i => i.typePlaying == TypePlaying.background && DateTime.Now >= i.startTime && DateTime.Now < i.stopTime).FirstOrDefault();
+                            if (currentScheduleBg.startTime != proveSchedule.startTime)
+                            {
+                                statusPlayingBg = StatusPlayingBg.stopped;
+                            }
+                            else
+                            {
+                                continuePlay();
+                            }
                         }
                     }
                 }
@@ -188,6 +201,7 @@ namespace TestMediaPlayer.Services.PlayServices
             }
             else {
                 currentFile = null;
+                currentScheduleIr = null;
                 statusPlayingIr = StatusPlayingIr.stopped;
             }
             
