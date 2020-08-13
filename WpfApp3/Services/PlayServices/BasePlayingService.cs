@@ -3,6 +3,7 @@ using System.Linq;
 using System;
 using TestMediaPlayer.DataObjects;
 using TestMediaPlayer.Helpers;
+using System.Security.Policy;
 
 namespace TestMediaPlayer.Services.PlayServices
 {
@@ -16,105 +17,161 @@ namespace TestMediaPlayer.Services.PlayServices
         public LinkedListNode<FileDataObject> currentFileIr;
         public LinkedList<FileDataObject> playlistBg;
         public LinkedList<FileDataObject> playlistIr;
-        public List<ScheduleDataObject> schedule;
+        public scheduleList schedule;
+        public int currentScheduleIdent = 0;
         public ScheduleDataObject currentScheduleBg;
         public ScheduleDataObject currentScheduleIr;
         public bool stop = false;
 
+        public void setSchedule(List<ScheduleDataObject> data)
+        {
+            Random rnd = new Random();
+            var ident = rnd.Next();
+
+            schedule = new scheduleList { list = data, ident = ident };
+        }
+
+        public string getCurrentFileName()
+        {
+            if (statusPlayingBg == StatusPlayingBg.playing)
+                return currentFileBg.Value.name;
+            else if (statusPlayingIr == StatusPlayingIr.playing)
+                return currentFileIr.Value.name;
+            else
+                return "";
+        }
         public void timeProcessing(TimeSpan position, TimeSpan timeSpan)
         {
-            var proveSchedule = schedule.Where(i => i.typePlaying == TypePlaying.background && DateTime.Now >= i.startTime && DateTime.Now < i.stopTime).FirstOrDefault();
-            if (proveSchedule != null)
+            if(schedule != null)
             {
-                if(currentScheduleBg != null)
+                var justStartPlaying = false;
+                var proveSchedule = schedule.list.Where(i => i.typePlaying == TypePlaying.background && DateTime.Now >= i.startTime && DateTime.Now < i.stopTime).FirstOrDefault();
+                if (proveSchedule != null)
                 {
-                    if(currentScheduleBg.id != proveSchedule.id)
+                    if (currentScheduleBg != null)
                     {
-                        if(statusPlayingIr != StatusPlayingIr.playing && statusPlayingBg != StatusPlayingBg.playing && statusPlayingBg != StatusPlayingBg.paused)
+                        if(schedule.ident == currentScheduleIdent)
                         {
-                            currentScheduleBg = proveSchedule;
+                            if (currentScheduleBg.id != proveSchedule.id)
+                            {
+                                if (statusPlayingIr != StatusPlayingIr.playing && statusPlayingBg != StatusPlayingBg.playing && statusPlayingBg != StatusPlayingBg.paused)
+                                {
+                                    currentScheduleBg = proveSchedule;
+                                    currentScheduleIdent = schedule.ident;
+                                    playSchedule();
+                                    justStartPlaying = true;
+                                }
+                                else if (!stop)
+                                {
+                                    stop = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            stop = true;
+                        }
+                    }
+                    else
+                    {
+                        currentScheduleBg = proveSchedule;
+                        if (statusPlayingIr != StatusPlayingIr.playing)
+                        {
+                            currentScheduleIdent = schedule.ident;
                             playSchedule();
+                            justStartPlaying = true;
                         }
-                        else if(!stop)
+                        else
+                        {
+                            statusPlayingBg = StatusPlayingBg.paused;
+                        }
+                    }
+                }
+
+                proveSchedule = schedule.list.Where(i => i.typePlaying == TypePlaying.interrupt && DateTime.Now.AddMilliseconds(-500) <= i.startTime && DateTime.Now.AddMilliseconds(500) >= i.startTime).FirstOrDefault();
+                if (proveSchedule != null)
+                {
+                    if (currentScheduleIr != null)
+                    {
+                        if (schedule.ident == currentScheduleIdent)
+                        {
+                            if (currentScheduleIr.id != proveSchedule.id)
+                            {
+                                if (statusPlayingIr != StatusPlayingIr.playing && statusPlayingBg != StatusPlayingBg.playing && statusPlayingBg != StatusPlayingBg.paused)
+                                {
+                                    currentScheduleIr = proveSchedule;
+                                    playInterrupt(position.TotalSeconds);
+                                    justStartPlaying = true;
+                                }
+                                else if (!stop)
+                                {
+                                    stop = true;
+                                }
+                            }
+                        }
+                        else
                         {
                             stop = true;
                         }
                     }
-                }
-                else
-                {
-                    currentScheduleBg = proveSchedule;
-                    if (statusPlayingIr != StatusPlayingIr.playing)
-                    {
-                        playSchedule();
-                    }
                     else
                     {
-                        statusPlayingBg = StatusPlayingBg.paused;
+                        currentScheduleIr = proveSchedule;
+                        playInterrupt(position.TotalSeconds);
+                        justStartPlaying = true;
                     }
                 }
-            }
 
-            proveSchedule = schedule.Where(i => i.typePlaying == TypePlaying.interrupt && DateTime.Now >= i.startTime && DateTime.Now < i.stopTime).FirstOrDefault();
-            if (proveSchedule != null)
-            {
-                if (currentScheduleIr != null)
+                if (!justStartPlaying)
                 {
-                    if (currentScheduleIr.id != proveSchedule.id)
+                    if (statusPlayingBg == StatusPlayingBg.playing)
                     {
-                        if (statusPlayingIr != StatusPlayingIr.playing && statusPlayingBg != StatusPlayingBg.playing && statusPlayingBg != StatusPlayingBg.paused)
+                        if (position == timeSpan)
                         {
-                            currentScheduleIr = proveSchedule;
-                            playInterrupt(position.TotalSeconds);
-                        }
-                        else if (!stop)
-                        {
-                            stop = true;
+                            if (stop)
+                            {
+                                stop = false; 
+                                proveSchedule = schedule.list.Where(i => i.typePlaying == TypePlaying.background && DateTime.Now >= i.startTime && DateTime.Now < i.stopTime).FirstOrDefault();
+                                currentScheduleBg = proveSchedule;
+                                currentScheduleIdent = schedule.ident;
+                                statusPlayingBg = StatusPlayingBg.stopped;
+                                playSchedule();
+                            }
+                            else
+                            {
+                                nextPlay(player, playlistBg, currentFileBg, true);
+                            }
+
                         }
                     }
-                }
-                else
-                {
-                    currentScheduleIr = proveSchedule;
-                    playInterrupt(position.TotalSeconds);
-                }
-            }
-
-
-            if (statusPlayingBg == StatusPlayingBg.playing)
-            {
-                if (position == timeSpan)
-                {
-                    if (stop)
+                    else if (statusPlayingIr == StatusPlayingIr.playing)
                     {
-                        stop = false;
-                        statusPlayingBg = StatusPlayingBg.stopped;
+                        if (position == timeSpan)
+                        {
+                            if (stop)
+                            {
+                                statusPlayingIr = StatusPlayingIr.stopped;
+                                if(statusPlayingBg == StatusPlayingBg.stopped)
+                                {
+                                    proveSchedule = schedule.list.Where(i => i.typePlaying == TypePlaying.background && DateTime.Now >= i.startTime && DateTime.Now < i.stopTime).FirstOrDefault();
+                                    currentScheduleBg = proveSchedule;
+                                    currentScheduleIdent = schedule.ident;
+                                    playSchedule();
+                                }
+                            }
+                            else
+                            {
+                                nextPlay(player, playlistIr, currentFileIr, false);
+                            }
+                        }
                     }
                     else
                     {
-                        nextPlay(player, playlistBg, currentFileBg, true);
+                        if (statusPlayingBg == StatusPlayingBg.paused)
+                        {
+                            continuePlay();
+                        }
                     }
-
-                }
-            }
-            else if(statusPlayingIr == StatusPlayingIr.playing)
-            {
-                if (position == timeSpan)
-                {
-                    if (stop)
-                    {
-                        statusPlayingIr = StatusPlayingIr.stopped;
-                    }
-                    else
-                    {
-                        nextPlay(player, playlistIr, currentFileIr, false);
-                    }
-                }
-            }
-            else
-            {
-                if(statusPlayingBg == StatusPlayingBg.paused) {
-                    continuePlay();
                 }
             }
         }

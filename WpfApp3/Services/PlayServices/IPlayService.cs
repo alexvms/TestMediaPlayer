@@ -7,12 +7,14 @@ namespace TestMediaPlayer.Services.PlayServices
 {
     public interface IPlayService<T>
     {
-        void playSchedule(List<ScheduleDataObject> schedule);
+        void playSchedule();
         void stopAll();
         void nextPlay(T player, LinkedList<FileDataObject> playlist, LinkedListNode<FileDataObject> currentFile, bool repeat);
         void continuePlay();
-        void playInterrupt();
+        void playInterrupt(double position);
         void Initialization(T player);
         void timeProcessing(TimeSpan position, TimeSpan timeSpan);
+        string getCurrentFileName();
+        void setSchedule(List<ScheduleDataObject> data);
     }
 }

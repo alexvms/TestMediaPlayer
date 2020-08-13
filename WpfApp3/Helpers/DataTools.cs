@@ -41,6 +41,7 @@ namespace TestMediaPlayer.Helpers
 
 			DateTime startTime; 
 			DateTime? stopTime = null;
+			var itemIndex = 3;
 
 			if (typePlaying == TypePlaying.background)
             {
@@ -56,6 +57,7 @@ namespace TestMediaPlayer.Helpers
 			}
             else
             {
+				itemIndex = 2;
 				try
 				{
 					startTime = DateTime.Parse(line[1]);
@@ -66,9 +68,10 @@ namespace TestMediaPlayer.Helpers
 				}
 			}
 			string filePath;
-            if (!String.IsNullOrEmpty(line[3]))
+			
+            if (!String.IsNullOrEmpty(line[itemIndex]))
             {
-				filePath = line[3];
+				filePath = line[itemIndex];
             }
             else
             {

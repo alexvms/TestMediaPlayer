@@ -38,7 +38,7 @@ namespace TestMediaPlayer
 			var result = await DataServices.Main.GetScheduleDataObject(fileName);
 			if (result.IsValid)
 			{
-				listScheduleObject = result.Data;
+				PlayService.Main.setSchedule(result.Data);
 			}
 			else
             {
@@ -53,7 +53,7 @@ namespace TestMediaPlayer
 				if (DialogServices.Main.OpenFileDialog() == true)
 				{
 					loadData(DialogServices.Main.FilePath);
-					PlayService.Main.playSchedule(listScheduleObject);
+					//PlayService.Main.playSchedule();
 				}
 			}
 			catch (Exception ex)
@@ -66,7 +66,7 @@ namespace TestMediaPlayer
 		{
 			try
 			{
-				PlayService.Main.playInterrupt();
+				//PlayService.Main.playInterrupt();
 			}
 			catch (Exception ex)
 			{
@@ -76,19 +76,24 @@ namespace TestMediaPlayer
 		}
 		void timer_Tick(object sender, EventArgs e)
 		{
-			
+			var position = new TimeSpan(0);
+			var timeSpan = new TimeSpan(0);
 			if (mePlayerBg.Source != null)
 			{
 				if (mePlayerBg.NaturalDuration.HasTimeSpan)
                 {
 					lblStatus.Content = String.Format("{0} / {1}", mePlayerBg.Position.ToString(@"mm\:ss"), mePlayerBg.NaturalDuration.TimeSpan.ToString(@"mm\:ss"));
 
-					PlayService.Main.timeProcessing(mePlayerBg.Position, mePlayerBg.NaturalDuration.TimeSpan);
+					lblName.Content = PlayService.Main.getCurrentFileName();
+
+					position = mePlayerBg.Position;
+					timeSpan = mePlayerBg.NaturalDuration.TimeSpan;
 				}
 			}
 			else
 				lblStatus.Content = "No file selected...";
 
+			PlayService.Main.timeProcessing(position, timeSpan);
 
 		}
 	}
